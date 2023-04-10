@@ -11,6 +11,9 @@ from src.methods.logistic_regression import LogisticRegression
 from src.methods.svm import SVM
 from src.utils import normalize_fn, append_bias_term, accuracy_fn, macrof1_fn
 
+#WILL BE REMOVED
+from sklearn.model_selection import train_test_split
+
 
 def main(args):
     """
@@ -30,9 +33,16 @@ def main(args):
     ## 2. Then we must prepare it. This is were you can create a validation set,
     #  normalize, add bias, etc.
 
+    #  normalize
+    xtrain = normalize_fn(xtrain)
+    xtest = normalize_fn(xtest)
+
     # Make a validation set (it can overwrite xtest, ytest)
     if not args.test:
         ### WRITE YOUR CODE HERE
+
+        ##TO BE REMOVED
+        xtrain, xtest, ytrain, ytest = train_test_split(xtrain, ytrain, test_size=0.2, random_state=42)
         pass
     
     ### WRITE YOUR CODE HERE to do any other data processing
@@ -44,6 +54,10 @@ def main(args):
     
 
     ## 3. Initialize the method you want to use.
+    if not args.method:
+        args.method == "dummy_classifier"
+        raise NotImplementedError("You have to give the method. This result is random")
+
 
     # Use NN (FOR MS2!)
     if args.method == "nn":
@@ -53,8 +67,12 @@ def main(args):
     if args.method == "dummy_classifier":
         method_obj =  DummyClassifier(arg1=1, arg2=2)
 
-    elif ...:  ### WRITE YOUR CODE HERE
-        pass
+    elif args.method == "kmeans":  ### WRITE YOUR CODE HERE
+        method_obj = KMeans()
+    elif args.method == "logistic regression":
+        method_obj = LogisticRegression()
+    elif args.method == "svm":
+        method_obj == SVM()
     
 
     ## 4. Train and evaluate the method
