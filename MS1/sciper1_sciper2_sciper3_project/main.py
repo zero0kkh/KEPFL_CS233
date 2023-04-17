@@ -25,8 +25,6 @@ def main(args):
     """
     ## 1. First, we load our data and flatten the images into vectors
     xtrain, xtest, ytrain, ytest = load_data(args.data)
-    print(xtest)
-    #print(ytest)
     xtrain = xtrain.reshape(xtrain.shape[0], -1)
     xtest = xtest.reshape(xtest.shape[0], -1)
 
@@ -70,8 +68,8 @@ def main(args):
 
     elif args.method == "kmeans":  ### WRITE YOUR CODE HERE
         method_obj = KMeans()
-    elif args.method == "logistic regression":
-        method_obj = LogisticRegression()
+    elif args.method == "logistic_regression":
+        method_obj = LogisticRegression(lr=0.001, max_iters=100, weights=np.random.normal(0, 0.1, (10, 10)))
     elif args.method == "svm":
         method_obj == SVM()
     

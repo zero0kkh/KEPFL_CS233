@@ -8,7 +8,7 @@ class LogisticRegression(object):
     Logistic regression classifier.
     """
 
-    def __init__(self, lr, max_iters=500, weights):
+    def __init__(self, lr=0.001, max_iters=100, weights=np.random.normal(0, 0.1, (10, 10))):
         """
         Initialize the new object (see dummy_methods.py)
         and set its arguments.
@@ -106,7 +106,7 @@ class LogisticRegression(object):
         
         for iter in range(self.max_iters):
             ### WRITE YOUR CODE HERE
-            gradient = self.gradient(training_data, training_labels, self.weights)
+            gradient = self.gradient(data = training_data, labels = training_labels, weight = self.weights)
             self.weights = self.weights - self.lr * gradient
             ##################################
 
