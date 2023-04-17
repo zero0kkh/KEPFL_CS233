@@ -1,5 +1,4 @@
 import argparse
-
 import numpy as np 
 import torch
 from torch.utils.data import DataLoader
@@ -26,6 +25,8 @@ def main(args):
     """
     ## 1. First, we load our data and flatten the images into vectors
     xtrain, xtest, ytrain, ytest = load_data(args.data)
+    print(xtest)
+    #print(ytest)
     xtrain = xtrain.reshape(xtrain.shape[0], -1)
     xtest = xtest.reshape(xtest.shape[0], -1)
 
@@ -34,8 +35,8 @@ def main(args):
     #  normalize, add bias, etc.
 
     #  normalize
-    xtrain = normalize_fn(xtrain)
-    xtest = normalize_fn(xtest)
+    xtrain = normalize_fn(xtrain,np.mean(xtrain),np.std(xtrain))
+    xtest = normalize_fn(xtest,np.mean(xtest),np.std(xtest))
 
     # Make a validation set (it can overwrite xtest, ytest)
     if not args.test:
