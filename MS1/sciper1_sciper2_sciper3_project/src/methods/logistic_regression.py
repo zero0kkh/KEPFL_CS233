@@ -2,6 +2,14 @@ import numpy as np
 
 from ..utils import get_n_classes, label_to_onehot, onehot_to_label
 
+def one_hot_encode(arr):
+        n = len(arr)
+        one_hot_matrix = np.zeros((n, 10))
+        
+        for i in range(n):
+            one_hot_matrix[i, arr[i]] = 1
+        
+        return one_hot_matrix
 
 class LogisticRegression(object):
     """
@@ -22,7 +30,7 @@ class LogisticRegression(object):
         self.max_iters = max_iters
         self.weights = weights
 
-    def f_softmax(data, weight):
+    def f_softmax(self, data, weight):
         """
         Softmax function for multi-class logistic regression.
     
@@ -57,6 +65,7 @@ class LogisticRegression(object):
         preds = self.f_softmax(data, weight)
         return - np.sum(labels * np.log(preds) + (1-labels) * np.log(1 - preds))
     """
+    
 
     def gradient(self, data, labels, weight):
         """
@@ -69,9 +78,9 @@ class LogisticRegression(object):
         Returns:
             grad (np.array): Gradients of shape (D, C)
     """
-        return data.T @ (self.f_softmax(data, weight) - labels)
+        return data.T @ (self.f_softmax(data, weight) - one_hot_encode(labels))
     
-    def accuracy_fn(labels_pred, labels):
+    def accuracy_fn(self, labels_pred, labels):
         """
         Computes the accuracy of the predictions (in percent).
     
@@ -110,7 +119,7 @@ class LogisticRegression(object):
             self.weights = self.weights - self.lr * gradient
             ##################################
 
-            predictions = self.predict(training_data, self.weights) #(N,)
+            predictions = self.predict(training_data) #(N,)
             if self.accuracy_fn(predictions, training_labels) == 100:
                 break
         return self.predict(training_data)
@@ -125,7 +134,7 @@ class LogisticRegression(object):
             pred_labels (array): labels of shape (N,)
         """
         ### WRITE YOUR CODE HERE
-        predictions = self.f_softmax(test_data, self.weight) #(N,C)
+        predictions = self.f_softmax(test_data, self.weights) #(N,C)
         pred_labels = np.zeros(predictions.shape[0]) #(N,)
         for i in range(predictions.shape[0]):
             pred_labels[i] = np.argmax(predictions[i])
