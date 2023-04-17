@@ -14,6 +14,16 @@ from src.utils import normalize_fn, append_bias_term, accuracy_fn, macrof1_fn
 from sklearn.model_selection import train_test_split
 
 
+def k_fold_split(X, y, k=5):
+    n = len(X)
+    fold_size = n // k
+    indices = np.random.permutation(n)
+    for i in range(k):
+        test_indices = indices[i * fold_size:(i + 1) * fold_size]
+        train_indices = np.concatenate((indices[:i * fold_size], indices[(i + 1) * fold_size:]))
+        yield X[train_indices], y[train_indices], X[test_indices], y[test_indices]
+
+
 def main(args):
     """
     The main function of the script. Do not hesitate to play with it
@@ -93,6 +103,20 @@ def main(args):
     print(f"Test set:  accuracy = {acc:.3f}% - F1-score = {macrof1:.6f}")
 
     ### WRITE YOUR CODE HERE if you want to add other outputs, visualization, etc.
+    
+    #Cross-Validation
+    accuracies = []
+    macrof1s = []
+    for X_train, y_train, X_test, y_test in k_fold_split(xtrain, ytrain):
+        preds_train = method_obj.fit(X_train, y_train)
+        preds = method_obj.predict(X_test)
+        acc = accuracy_fn(preds, y_test)
+        macrof1 = macrof1_fn(preds, y_test)
+        accuracies.append(acc)
+        macrof1s.append(macrof1)
+    cross_acc=np.mean(accuracies)
+    cross_f1=np.mean(macrof1s)
+    print(f"Cross-Validation of Test set:  accuracy = {cross_acc:.3f}% - F1-score = {cross_f1:.6f}")
 
 
 if __name__ == '__main__':
