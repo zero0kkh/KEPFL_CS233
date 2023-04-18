@@ -15,8 +15,7 @@ class LogisticRegression(object):
     """
     Logistic regression classifier.
     """
-
-    def __init__(self, lr=0.001, max_iters=100, weights=np.random.normal(0, 0.1, (10, 10))):
+    def __init__(self, lr=0.001, max_iters=100):
         """
         Initialize the new object (see dummy_methods.py)
         and set its arguments.
@@ -24,26 +23,24 @@ class LogisticRegression(object):
         Arguments:
             lr (float): learning rate of the gradient descent
             max_iters (int): maximum number of iterations
-            weights (array): weights of the logistic regression model, of shape(D, C)
         """
         self.lr = lr
         self.max_iters = max_iters
-        self.weights = weights
+        self.weights = np.random.normal(0, 0.1, (10, 10))
 
-    def f_softmax(self, data, weight):
+    def f_softmax(self, data):
         """
         Softmax function for multi-class logistic regression.
     
         Args:
             data (array): Input data of shape (N, D)
-            weight (array): Weights of shape (D, C) where C is the number of classes
         Returns:
             array of shape (N, C): Probability array where each value is in the
             range [0, 1] and each row sums to 1.
             The row i corresponds to the prediction of the ith data sample, and 
             the column j to the jth class. So element [i, j] is P(y_i=k | x_i, W)
         """
-        z_arr = np.exp(data @ weight)
+        z_arr = np.exp(data @ self.weights)
         z_sum = np.sum(z_arr, axis=1)
         sfx = z_arr
         for i in range(z_arr.shape[0]):
@@ -65,20 +62,18 @@ class LogisticRegression(object):
         preds = self.f_softmax(data, weight)
         return - np.sum(labels * np.log(preds) + (1-labels) * np.log(1 - preds))
     """
-    
 
-    def gradient(self, data, labels, weight):
+    def gradient(self, data, labels):
         """
         Compute the gradient of the entropy for multi-class logistic regression.
     
         Args:
             data (array): Input data of shape (N, D)
-            labels (array): Labels of shape  (N, C)  (in one-hot representation)
-            weight (array): Weights of shape (D, C)
+            labels (array): Labels of shape  (N,)
         Returns:
             grad (np.array): Gradients of shape (D, C)
     """
-        return data.T @ (self.f_softmax(data, weight) - one_hot_encode(labels))
+        return data.T @ (self.f_softmax(data) - one_hot_encode(labels))
     
     def accuracy_fn(self, labels_pred, labels):
         """
@@ -109,11 +104,12 @@ class LogisticRegression(object):
         C = 10  # number of classes
 
         # Random initialization of the weights
+        print(self.lr, self.max_iters)
         self.weights = np.random.normal(0, 0.1, (D, C))
         
         for iter in range(self.max_iters):
             ### WRITE YOUR CODE HERE
-            gradient = self.gradient(data = training_data, labels = training_labels, weight = self.weights)
+            gradient = self.gradient(data = training_data, labels = training_labels)
             self.weights = self.weights - self.lr * gradient
             ##################################
 
@@ -132,7 +128,7 @@ class LogisticRegression(object):
             pred_labels (array): labels of shape (N,)
         """
         ### WRITE YOUR CODE HERE
-        predictions = self.f_softmax(test_data, self.weights) #(N,C)
+        predictions = self.f_softmax(test_data) #(N,C)
         pred_labels = np.zeros(predictions.shape[0]) #(N,)
         for i in range(predictions.shape[0]):
             pred_labels[i] = np.argmax(predictions[i])
