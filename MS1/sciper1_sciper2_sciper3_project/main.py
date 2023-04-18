@@ -79,7 +79,7 @@ def main(args):
     elif args.method == "kmeans":  ### WRITE YOUR CODE HERE
         method_obj = KMeans()
     elif args.method == "logistic_regression":
-        method_obj = LogisticRegression(lr=args.lr, max_iters=args.max_iters, weights=np.random.normal(0, 0.1, (10, 10)))
+        method_obj = LogisticRegression(lr=args.lr, max_iters=args.max_iters)
     elif args.method == "svm":
         method_obj == SVM()
     
