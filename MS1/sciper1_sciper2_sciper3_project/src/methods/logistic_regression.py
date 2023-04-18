@@ -103,9 +103,7 @@ class LogisticRegression(object):
         Returns:
             pred_labels (array): target of shape (N,)
         """
-        #### WRITE YOUR CODE HERE! 
-        self.max_iters=10
-        self.lr = 0.001
+        #### WRITE YOUR CODE HERE!
         
         D = training_data.shape[1]  # number of features
         C = 10  # number of classes
