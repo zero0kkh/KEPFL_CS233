@@ -19,6 +19,7 @@ class KMeans(object):
         """
         self.K = K
         self.max_iters = max_iters
+        self.centers = 0
 
     def k_means(self, data, max_iter=100):
         """
@@ -36,7 +37,37 @@ class KMeans(object):
         #### WRITE YOUR CODE HERE! 
         ###
         ##
+
+        # Initialize the centers
+        self.centers = init_centers(data, K)
+    
+        # Loop over the iterations
+        for i in range(max_iter):
+
+            if ((i+1) % 10 == 0):
+                print(f"Iteration {i+1}/{max_iter}…")
+
+            old_centers = centers.copy()  # keep in memory the centers of the previous iteration
+
+            ### WRITE YOUR CODE HERE
+            new_centers = compute_centers(x_train, cluster_assignments, K)
+
+            # End of the algorithm if the centers have not moved
+            if old_centers == new_centers:  ### WRITE YOUR CODE HERE
+                print(f"K-Means has converged after {i+1} iterations!")
+                break
+        
+        self.centers = new_centers    
+        # Compute the final cluster assignments
+        distances = compute_distance(x_train, self.centers)
+        cluster_assignments = find_closest_cluster(distances)
+
+            # Initialize the centers
+        centers = init_centers(data, K)
+        
+        # Compute the final cluster assignments
         return centers, cluster_assignments
+
     
     def fit(self, training_data, training_labels):
         """
@@ -56,6 +87,11 @@ class KMeans(object):
         #### WRITE YOUR CODE HERE! 
         ###
         ##
+
+        centers, clusters = self.k_means(training_data, self.K)
+        self.centers = centers
+        center_label = assign_labels_to_centers(centers, clusters, training_labels)
+
         return self.predict(training_data)
 
     def predict(self, test_data):
@@ -76,3 +112,44 @@ class KMeans(object):
         ###
         ##
         return pred_labels
+    def compute_centers(data, cluster_assignments, K):
+        """
+        Compute the center of each cluster based on the assigned points.
+
+        Arguments: 
+            data: data array of shape (N,D), where N is the number of samples, D is number of features
+            cluster_assignments: the assigned cluster of each data sample as returned by find_closest_cluster(), shape is (N,)
+            K: the number of clusters
+        Returns:
+            centers: the new centers of each cluster, shape is (K,D) where K is the number of clusters, D the number of features
+        """
+        ### WRITE YOUR CODE HERE
+    
+        return centers
+    
+    def init_centers(data, K):
+        ### WRITE YOUR CODE HERE
+        # Select the first K random index
+        random_idx = np.random.permutation(data.shape[0])[:K]
+        # Use these index to select centers from data
+        centers = data[random_idx[:K]]
+        
+        return centers
+    
+    def assign_labels_to_centers(centers, cluster_assignments, true_labels):
+        """
+        Use voting to attribute a label to each cluster center.
+
+        Arguments: 
+            centers: array of shape (K, D), cluster centers
+            cluster_assignments: array of shape (N,), cluster assignment for each data point.
+            true_labels: array of shape (N,), true labels of data
+        Returns: 
+            cluster_center_label: array of shape (K,), the labels of the cluster centers
+        """
+        ### WRITE YOUR CODE HERE
+        cluster_center_label = np.zeros(centers.shape[0])
+        for i in range(len(centers)):
+            label = np.argmax(np.bincount(true_labels[cluster_assignments == i]))
+            cluster_center_label[i] = label
+        return cluster_center_label
