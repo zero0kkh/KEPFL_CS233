@@ -16,7 +16,7 @@ class LogisticRegression(object):
     Logistic regression classifier.
     """
 
-    def __init__(self, lr=0.001, max_iters=100, weights=np.random.normal(0, 0.1, (10, 10))):
+    def __init__(self, lr=0.001, max_iters=100):
         """
         Initialize the new object (see dummy_methods.py)
         and set its arguments.
@@ -24,11 +24,10 @@ class LogisticRegression(object):
         Arguments:
             lr (float): learning rate of the gradient descent
             max_iters (int): maximum number of iterations
-            weights (array): weights of the logistic regression model, of shape(D, C)
         """
         self.lr = lr
         self.max_iters = max_iters
-        self.weights = weights
+        self.weights = np.random.normal(0, 0.1, (10, 10))
 
     def f_softmax(self, data, weight):
         """
