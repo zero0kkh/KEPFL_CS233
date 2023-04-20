@@ -46,22 +46,6 @@ class LogisticRegression(object):
         for i in range(z_arr.shape[0]):
             sfx[i] = z_arr[i] / z_sum[i]
         return sfx
-    
-    """
-    def loss_logistic_multi(self, data, labels, weight):
-        #
-        Loss function for multi class logistic regression, i.e., multi-class entropy.
-    
-        Args:
-            data (array): Input data of shape (N, D)
-            labels (array): Labels of shape  (N, C)  (in one-hot representation)
-            weight (array): Weights of shape (D, C)
-        Returns:
-            float: Loss value 
-        #
-        preds = self.f_softmax(data, weight)
-        return - np.sum(labels * np.log(preds) + (1-labels) * np.log(1 - preds))
-    """
 
     def gradient(self, data, labels):
         """
@@ -72,9 +56,9 @@ class LogisticRegression(object):
             labels (array): Labels of shape  (N,)
         Returns:
             grad (np.array): Gradients of shape (D, C)
-    """
+        """
         return data.T @ (self.f_softmax(data) - one_hot_encode(labels))
-    
+
     def accuracy_fn(self, labels_pred, labels):
         """
         Computes the accuracy of the predictions (in percent).
@@ -85,7 +69,6 @@ class LogisticRegression(object):
         Returns:
             acc (float): Accuracy, in range [0, 100].
         """
-        ### WRITE YOUR CODE HERE
         return np.sum(labels_pred == labels) / labels.shape[0] * 100.0
 
     def fit(self, training_data, training_labels):
@@ -108,10 +91,8 @@ class LogisticRegression(object):
         self.weights = np.random.normal(0, 0.1, (D, C))
         
         for iter in range(self.max_iters):
-            ### WRITE YOUR CODE HERE
             gradient = self.gradient(data = training_data, labels = training_labels)
             self.weights = self.weights - self.lr * gradient
-            ##################################
 
             predictions = self.predict(training_data) #(N,)
             if self.accuracy_fn(predictions, training_labels) == 100:
@@ -127,9 +108,8 @@ class LogisticRegression(object):
         Returns:
             pred_labels (array): labels of shape (N,)
         """
-        ### WRITE YOUR CODE HERE
-        predictions = self.f_softmax(test_data) #(N,C)
-        pred_labels = np.zeros(predictions.shape[0]) #(N,)
+        predictions = self.f_softmax(test_data)
+        pred_labels = np.zeros(predictions.shape[0])
         for i in range(predictions.shape[0]):
             pred_labels[i] = np.argmax(predictions[i])
-        return pred_labels #(N,)
+        return pred_labels
