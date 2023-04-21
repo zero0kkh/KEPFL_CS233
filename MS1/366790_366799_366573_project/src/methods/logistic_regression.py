@@ -87,7 +87,6 @@ class LogisticRegression(object):
         C = 10  # number of classes
 
         # Random initialization of the weights
-        print(self.lr, self.max_iters)
         self.weights = np.random.normal(0, 0.1, (D, C))
         
         for iter in range(self.max_iters):
