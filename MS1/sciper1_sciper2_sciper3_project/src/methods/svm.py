@@ -11,7 +11,7 @@ class SVM(object):
     SVM method.
     """
 
-    def __init__(self, C=1, kernel='linear', gamma=1., degree=1, coef0=0.):
+    def __init__(self, C=1, kernel='rbf', gamma=1., degree=1, coef0=0.):
         """
         Initialize the new object (see dummy_methods.py)
         and set its arguments.
@@ -33,6 +33,7 @@ class SVM(object):
         self.gamma = gamma
         self.degree = degree
         self.coef0 = coef0
+        self.svm_clf = SVC()
         
     def fit(self, training_data, training_labels):
         """
@@ -46,10 +47,16 @@ class SVM(object):
         """
         ##
         ###
-        #### WRITE YOUR CODE HERE! 
+        #### WRITE YOUR CODE HERE!
         ###
         ##
-        self.fit()
+        if self.kernel == 'poly' or self.kernel == 'sigmoid':
+            self.svm_clf = SVC(kernel=self.kernel, C=self.C, gamma=self.gamma, coef0=self.coef0)
+        elif self.kernel == 'rbf':
+            self.svm_clf = SVC(kernel=self.kernel, C=self.C, gamma=self.gamma)
+        else: self.svm_clf = SVC(kernel=self.kernel, C=self.C)
+        self.svm_clf.fit(training_data, training_labels)
+
         return self.predict(training_data)
     
     def predict(self, test_data):
@@ -66,4 +73,5 @@ class SVM(object):
         #### WRITE YOUR CODE HERE! 
         ###
         ##
+        pred_labels = self.svm_clf.predict(test_data)
         return pred_labels
