@@ -10,9 +10,27 @@ from src.methods.logistic_regression import LogisticRegression
 from src.methods.svm import SVM
 from src.utils import normalize_fn, append_bias_term, accuracy_fn, macrof1_fn
 
-#WILL BE REMOVED
-from sklearn.model_selection import train_test_split
+def train_split(X, y, test_size=0.2, random_state=0):
 
+    if not 0 < test_size < 1:
+        raise ValueError("test_size must be a float between 0 and 1")
+    if random_state:
+        np.random.seed(random_state)
+    data_size = len(X)
+    indices = np.arange(data_size)
+    np.random.shuffle(indices)
+
+    test_data_size = int(data_size * test_size)
+    test_indices = indices[:test_data_size]
+    train_indices = indices[test_data_size:]
+
+    X_train = np.array([X[i] for i in train_indices])
+    y_train = np.array([y[i] for i in train_indices])
+
+    X_test = np.array([X[i] for i in test_indices])
+    y_test = np.array([y[i] for i in test_indices])
+
+    return X_train, X_test, y_train, y_test
 
 def k_fold_split(X, y, k=5):
     n = len(X)
@@ -49,9 +67,7 @@ def main(args):
     # Make a validation set (it can overwrite xtest, ytest)
     if not args.test:
         ### WRITE YOUR CODE HERE
-
-        ##TO BE REMOVED
-        xtrain, xtest, ytrain, ytest = train_test_split(xtrain, ytrain, test_size=0.2, random_state=42)
+        xtrain, xtest, ytrain, ytest = train_split(xtrain, ytrain, test_size=0.2, random_state=42)
         pass
     
     ### WRITE YOUR CODE HERE to do any other data processing
@@ -77,7 +93,7 @@ def main(args):
         method_obj =  DummyClassifier(arg1=1, arg2=2)
 
     elif args.method == "kmeans":  ### WRITE YOUR CODE HERE
-        method_obj = KMeans()
+        method_obj = KMeans(K=args.K)
     elif args.method == "logistic_regression":
         method_obj = LogisticRegression(lr=args.lr, max_iters=args.max_iters)
     elif args.method == "svm":
