@@ -9,6 +9,7 @@ from src.methods.kmeans import KMeans
 from src.methods.logistic_regression import LogisticRegression
 from src.methods.svm import SVM
 from src.utils import normalize_fn, append_bias_term, accuracy_fn, macrof1_fn
+import time
 
 def train_split(X, y, test_size=0.2, random_state=0):
 
@@ -41,6 +42,19 @@ def k_fold_split(X, y, k=5):
         train_indices = np.concatenate((indices[:i * fold_size], indices[(i + 1) * fold_size:]))
         yield X[train_indices], y[train_indices], X[test_indices], y[test_indices]
 
+def cross_validate(method_obj,xtrain,ytrain):
+    accuracies = []
+    macrof1s = []
+    for X_train, y_train, X_test, y_test in k_fold_split(xtrain, ytrain):
+        preds_train = method_obj.fit(X_train, y_train)
+        preds = method_obj.predict(X_test)
+        acc = accuracy_fn(preds, y_test)
+        macrof1 = macrof1_fn(preds, y_test)
+        accuracies.append(acc)
+        macrof1s.append(macrof1)
+    cross_acc=np.mean(accuracies)
+    cross_f1=np.mean(macrof1s)
+    return cross_acc, cross_f1
 
 def main(args):
     """
@@ -97,9 +111,10 @@ def main(args):
     elif args.method == "logistic_regression":
         method_obj = LogisticRegression(lr=args.lr, max_iters=args.max_iters)
     elif args.method == "svm":
-        method_obj = SVM(C=args.svm_c, kernel=args.svm_kernel, gamma=args.svm_gamma, coef0=args.svm_coef0)
+        method_obj = SVM(C=args.svm_c, kernel=args.svm_kernel, degree=args.svm_degree, gamma=args.svm_gamma, coef0=args.svm_coef0)
     
 
+    s1=time.time()
     ## 4. Train and evaluate the method
 
     # Fit (:=train) the method on the training data
@@ -107,6 +122,8 @@ def main(args):
         
     # Predict on unseen data
     preds = method_obj.predict(xtest)
+    s2=time.time()
+    print("This method takes ", s2-s1, "seconds")
 
 
     ## Report results: performance on train and valid/test sets
@@ -120,19 +137,9 @@ def main(args):
 
     ### WRITE YOUR CODE HERE if you want to add other outputs, visualization, etc.
     
-    #Cross-Validation
-    accuracies = []
-    macrof1s = []
-    for X_train, y_train, X_test, y_test in k_fold_split(xtrain, ytrain):
-        preds_train = method_obj.fit(X_train, y_train)
-        preds = method_obj.predict(X_test)
-        acc = accuracy_fn(preds, y_test)
-        macrof1 = macrof1_fn(preds, y_test)
-        accuracies.append(acc)
-        macrof1s.append(macrof1)
-    cross_acc=np.mean(accuracies)
-    cross_f1=np.mean(macrof1s)
+    cross_acc, cross_f1 = cross_validate(method_obj,xtrain,ytrain)
     print(f"Cross-Validation of Test set:  accuracy = {cross_acc:.3f}% - F1-score = {cross_f1:.6f}")
+
 
 
 if __name__ == '__main__':
