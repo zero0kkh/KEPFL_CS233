@@ -113,8 +113,8 @@ def main(args):
 
         elif args.nn_type == "cnn":
             ### WRITE YOUR CODE HERE
-            xtrain = xtrain.reshape(xtrain.shape[0], 32, 32)
-            xtest = xtest.reshape(xtest.shape[0], 32, 32)
+            xtrain = xtrain.reshape(xtrain.shape[0], 1, 32, 32)
+            xtest = xtest.reshape(xtest.shape[0], 1, 32, 32)
             model = CNN(1,n_classes)
 
             
