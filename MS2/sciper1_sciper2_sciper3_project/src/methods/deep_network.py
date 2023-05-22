@@ -1,9 +1,28 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import TensorDataset, DataLoader
+from src.utils import onehot_to_label
+from torch.utils.data import DataLoader, TensorDataset
 
 ## MS2
+
+#Reference: Exercise 8 helpers
+def accuracy(x, y):
+    """ Accuracy.
+
+    Args:
+        x (torch.Tensor of float32): Predictions (logits), shape (B, C), B is
+            batch size, C is num classes.
+        y (torch.Tensor of int64): GT labels, shape (B, ),
+            B = {b: b \in {0 .. C-1}}.
+
+    Returns:
+        Accuracy, in [0, 1].
+    """
+    x = x.detach().cpu().numpy()
+    y = y.detach().cpu().numpy()
+    return np.mean(np.argmax(x, axis=1) == y)
     
 class MLP(nn.Module):
     """
@@ -43,7 +62,7 @@ class MLP(nn.Module):
                 Reminder: logits are value pre-softmax.
         """
         #### WRITE YOUR CODE HERE! 
-        x = x.flatten(-3) #flatten the images into vectors
+        #x = x.flatten(-2) #flatten the images into vectors
         
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
@@ -177,14 +196,28 @@ class Trainer(object):
             loss.backward()
             
             # 5.5 Update the weights using 'optimizer'.
-            optimizer.step()
+            
+            self.optimizer.step()
             
             # 5.6 Zero-out the accumulated gradients.
-            optimizer.zero_grad()
+            self.optimizer.zero_grad()
 
             print('\rit {}/{}: loss train: {:.2f}, accuracy train: {:.2f}'.
                   format(it + 1, len(dataloader), loss,
                          accuracy(logits, y)), end='')
+            
+        self.model.eval()
+        with torch.no_grad():
+            acc_run = 0
+            for it, batch in enumerate(dataloader):
+                # Get batch of data.
+                x, y = batch
+                preds = self.model(x)
+                curr_bs = x.shape[0]
+                acc_run += accuracy(preds, y) * curr_bs
+            acc = acc_run / len(dataloader.dataset)
+            print('accuracy test: {:.2f}'.format(acc))
+        ########################## 
         ##########################  
 
 
@@ -209,16 +242,18 @@ class Trainer(object):
         self.model.eval()
         with torch.no_grad():
             acc_run = 0
+            pred_labels=[]
+
+            ## FIND THE WAY TO CHECK batch before for loop
             for it, batch in enumerate(dataloader):
                 # Get batch of data.
-                x, y = batch
-                curr_bs = x.shape[0]
-                preds = model(x)
-                acc_run += accuracy(preds, y) * curr_bs
+                x= batch[0]
+                preds = self.model(x)
+                pred_labels.append(onehot_to_label(preds))  # onehot_to_label() in utils.py
+            pred_labels = torch.cat(pred_labels)
+            
             acc = acc_run / len(dataloader.dataset)
             print('accuracy test: {:.2f}'.format(acc))
-            
-            pred_labels = onehot_to_label(preds)  # onehot_to_label() in utils.py
         ########################## 
         return pred_labels
     
