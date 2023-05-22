@@ -1,14 +1,65 @@
 import argparse
+import time
 
 import numpy as np
-from torchinfo import summary
-
 from src.data import load_data
+from src.methods.deep_network import CNN, MLP, Trainer
 from src.methods.dummy_methods import DummyClassifier
 from src.methods.pca import PCA
-from src.methods.deep_network import MLP, CNN, Trainer
-from src.utils import normalize_fn, append_bias_term, accuracy_fn, macrof1_fn, get_n_classes
+from src.utils import (
+    accuracy_fn,
+    append_bias_term,
+    get_n_classes,
+    macrof1_fn,
+    normalize_fn,
+)
+from torchinfo import summary
 
+
+def train_split(X, y, test_size=0.2, random_state=0):
+
+    if not 0 < test_size < 1:
+        raise ValueError("test_size must be a float between 0 and 1")
+    if random_state:
+        np.random.seed(random_state)
+    data_size = len(X)
+    indices = np.arange(data_size)
+    np.random.shuffle(indices)
+
+    test_data_size = int(data_size * test_size)
+    test_indices = indices[:test_data_size]
+    train_indices = indices[test_data_size:]
+
+    X_train = np.array([X[i] for i in train_indices])
+    y_train = np.array([y[i] for i in train_indices])
+
+    X_test = np.array([X[i] for i in test_indices])
+    y_test = np.array([y[i] for i in test_indices])
+
+    return X_train, X_test, y_train, y_test
+
+def k_fold_split(X, y, k=5):
+    n = len(X)
+    fold_size = n // k
+    indices = np.random.permutation(n)
+    for i in range(k):
+        test_indices = indices[i * fold_size:(i + 1) * fold_size]
+        train_indices = np.concatenate((indices[:i * fold_size], indices[(i + 1) * fold_size:]))
+        yield X[train_indices], y[train_indices], X[test_indices], y[test_indices]
+
+def cross_validate(method_obj,xtrain,ytrain):
+    accuracies = []
+    macrof1s = []
+    for X_train, y_train, X_test, y_test in k_fold_split(xtrain, ytrain):
+        preds_train = method_obj.fit(X_train, y_train)
+        preds = method_obj.predict(X_test)
+        acc = accuracy_fn(preds, y_test)
+        macrof1 = macrof1_fn(preds, y_test)
+        accuracies.append(acc)
+        macrof1s.append(macrof1)
+    cross_acc=np.mean(accuracies)
+    cross_f1=np.mean(macrof1s)
+    return cross_acc, cross_f1
 
 def main(args):
     """
@@ -28,9 +79,14 @@ def main(args):
     ## 2. Then we must prepare it. This is were you can create a validation set,
     #  normalize, add bias, etc.
 
+    #  normalize
+    xtrain = normalize_fn(xtrain,np.mean(xtrain),np.std(xtrain))
+    xtest = normalize_fn(xtest,np.mean(xtest),np.std(xtest))
+
     # Make a validation set
     if not args.test:
         ### WRITE YOUR CODE HERE
+        xtrain, xtest, ytrain, ytest = train_split(xtrain, ytrain, test_size=0.2, random_state=42)
         pass
     
     ### WRITE YOUR CODE HERE to do any other data processing
@@ -71,11 +127,14 @@ def main(args):
 
     ## 4. Train and evaluate the method
 
+    s1=time.time()
     # Fit (:=train) the method on the training data
     preds_train = method_obj.fit(xtrain, ytrain)
         
     # Predict on unseen data
     preds = method_obj.predict(xtest)
+    s2=time.time()
+    print("This method takes ", s2-s1, "seconds")
 
 
     ## Report results: performance on train and valid/test sets
@@ -88,6 +147,10 @@ def main(args):
     print(f"Test set:  accuracy = {acc:.3f}% - F1-score = {macrof1:.6f}")
 
     ### WRITE YOUR CODE HERE if you want to add other outputs, visualization, etc.
+
+
+    #cross_acc, cross_f1 = cross_validate(method_obj,xtrain,ytrain)
+    #print(f"Cross-Validation of Test set:  accuracy = {cross_acc:.3f}% - F1-score = {cross_f1:.6f}")
 
 
 if __name__ == '__main__':
