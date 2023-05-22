@@ -196,16 +196,16 @@ class Trainer(object):
             loss.backward()
             
             # 5.5 Update the weights using 'optimizer'.
-            
             self.optimizer.step()
             
             # 5.6 Zero-out the accumulated gradients.
             self.optimizer.zero_grad()
 
-            print('\rit {}/{}: loss train: {:.2f}, accuracy train: {:.2f}'.
-                  format(it + 1, len(dataloader), loss,
-                         accuracy(logits, y)), end='')
-            
+            #print('\rit {}/{}: loss train: {:.2f}, accuracy train: {:.2f}'.
+            #      format(it + 1, len(dataloader), loss,
+            #             accuracy(logits, y)), end='')
+        # Validation 
+        """   
         self.model.eval()
         with torch.no_grad():
             acc_run = 0
@@ -217,7 +217,7 @@ class Trainer(object):
                 acc_run += accuracy(preds, y) * curr_bs
             acc = acc_run / len(dataloader.dataset)
             print('accuracy test: {:.2f}'.format(acc))
-        ########################## 
+        """
         ##########################  
 
 
@@ -249,11 +249,10 @@ class Trainer(object):
                 # Get batch of data.
                 x= batch[0]
                 preds = self.model(x)
+                #print(onehot_to_label(preds))
                 pred_labels.append(onehot_to_label(preds))  # onehot_to_label() in utils.py
             pred_labels = torch.cat(pred_labels)
-            
-            acc = acc_run / len(dataloader.dataset)
-            print('accuracy test: {:.2f}'.format(acc))
+            #print(pred_labels)
         ########################## 
         return pred_labels
     
