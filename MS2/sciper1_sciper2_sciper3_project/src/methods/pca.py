@@ -43,6 +43,30 @@ class PCA(object):
         #### WRITE YOUR CODE HERE! 
         ###
         ##
+
+        ### WRITE YOUR CODE BELOW ###
+        # Compute the mean of data
+        self.mean = np.mean(training_data, axis=0)
+        # Center the data with the mean
+        X_tilde = training_data - self.mean
+        # Create the covariance matrix
+        C = np.cov(X_tilde.T)
+        # Compute the eigenvectors and eigenvalues. Hint: look into np.linalg.eigh()
+        eigvals, eigvecs = np.linalg.eigh(C)
+        # Hint: sort the eigenvalues (with corresponding eigenvectors) in decreasing order first.
+        idx = np.argsort(eigvals)[::-1]
+        eigvals = eigvals[idx]
+        eigvecs = eigvecs[:,idx]
+        eg = np.sum(eigvals)
+
+        # Choose the top d eigenvalues and corresponding eigenvectors
+        eigvals = eigvals[:self.d]
+        eigvecs = eigvecs[:,:self.d]
+
+        self.W = eigvecs
+        
+        # Compute the explained variance
+        exvar = np.sum(eigvals) / eg * 100
         return exvar
 
     def reduce_dimension(self, data):
@@ -59,6 +83,8 @@ class PCA(object):
         #### WRITE YOUR CODE HERE! 
         ###
         ##
+        data_centered = data - self.mean
+        data_reduced = np.dot(data_centered, self.W)
         return data_reduced
         
 
