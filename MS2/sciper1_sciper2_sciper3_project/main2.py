@@ -101,9 +101,19 @@ def main(args):
         print("Using PCA")
         pca_obj = PCA(d=args.pca_d)
         ### WRITE YOUR CODE HERE: use the PCA object to reduce the dimensionality of the data
+        print("size of xtrain before pca")
+        print(xtrain.shape)
+        print(xtest.shape)
         pca_obj.find_principal_components(xtrain)
+
+        # To check which number of components will be enough to explain the whole data
+        pca_obj.plot_explained_variance()
+
         xtrain = pca_obj.reduce_dimension(xtrain)
         xtest = pca_obj.reduce_dimension(xtest)
+        print("size of xtrain after pca")
+        print(xtrain.shape)
+        print(xtest.shape)
 
     ## 3. Initialize the method you want to use.
 
